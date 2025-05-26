@@ -1,12 +1,76 @@
 /* eslint-disable */
-import React from 'react';
+import React, {useEffect} from 'react';
+import {todosSlice} from '../../features/todos'
+import {Todo} from '../../types/Todo';
+import { useAppSelector, useAppDispatch } from '../../app/hooks';
+import {getTodos} from '../../api'
 
 export const TodoList: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const {actions} = todosSlice;
+  const todoList = useAppSelector((state) => state.todos);
+  const { query, status } = useAppSelector(state => state.filter);
+
+  useEffect(() => {
+    getTodos().then(fetchedTodos => {
+      dispatch(actions.setTodos(fetchedTodos));
+    })
+    .catch(error => { 
+      console.error('Failed to fetch todos:', error);
+    });
+  }, [dispatch]);
+
+  const filteredTodos = todoList.filter((todo) => {
+  const matchesQuery = todo.title.toLowerCase().includes(query.toLowerCase());
+    const matchesStatus =
+      status === 'all' ||
+      (status === 'completed' && todo.completed) ||
+      (status === 'active' && !todo.completed);
+
+    return matchesQuery && matchesStatus;
+  });
+    
+  
+  // useAppSelector((state) => {
+  //   const filter = state.filter;
+  //   if (filter.status === 'all') {
+  //     return todoList;
+  //   }
+  //   return todoList.filter((todo) => {
+  //     if (filter.status === 'active') {
+  //       return !todo.completed;
+  //     } else if (filter.status === 'completed') {
+  //       return todo.completed;
+  //     }
+  //     return true; // Default case, should not happen
+  //   });
+  // });
+
+  // const add = () => {
+  //   dispatch(actions.addTodo({
+  //     id: todoList.length + 1,
+  //     title: `Todo ${todoList.length + 1}`,
+  //     completed: false,
+  //   } as Todo));
+  // }
+  // const remove = (id: number) => {
+  //   dispatch(actions.removeTodo(id));
+  // }
+  // const update = (todo: Todo) => {
+  //   dispatch(actions.updateTodo(todo));
+  // } 
+  // const setTodos = (todos: Todo[]) => {
+  //   dispatch(actions.setTodos(todos));
+  // }
+
+  console.log
+  ('TodoList rendered', todoList);
+
   return (
     <>
-      <p className="notification is-warning">
+      {/* <p className="notification is-warning">
         There are no todos matching current filter criteria
-      </p>
+      </p> */}
 
       <table className="table is-narrow is-fullwidth">
         <thead>
@@ -25,68 +89,16 @@ export const TodoList: React.FC = () => {
         </thead>
 
         <tbody>
-          <tr data-cy="todo">
-            <td className="is-vcentered">1</td>
-            <td className="is-vcentered"> </td>
-
-            <td className="is-vcentered is-expanded">
-              <p className="has-text-danger">delectus aut autem</p>
-            </td>
-
-            <td className="has-text-right is-vcentered">
-              <button data-cy="selectButton" className="button" type="button">
-                <span className="icon">
-                  <i className="far fa-eye" />
-                </span>
-              </button>
-            </td>
-          </tr>
-
-          <tr data-cy="todo">
-            <td className="is-vcentered">2</td>
-            <td className="is-vcentered"> </td>
-
-            <td className="is-vcentered is-expanded">
-              <p className="has-text-danger">
-                quis ut nam facilis et officia qui
-              </p>
-            </td>
-
-            <td className="has-text-right is-vcentered">
-              <button data-cy="selectButton" className="button" type="button">
-                <span className="icon">
-                  <i className="far fa-eye" />
-                </span>
-              </button>
-            </td>
-          </tr>
-
-          <tr data-cy="todo" className="has-background-info-light">
-            <td className="is-vcentered">3</td>
-            <td className="is-vcentered"> </td>
-
-            <td className="is-vcentered is-expanded">
-              <p className="has-text-danger">fugiat veniam minus</p>
-            </td>
-
-            <td className="has-text-right is-vcentered">
-              <button data-cy="selectButton" className="button" type="button">
-                <span className="icon">
-                  <i className="far fa-eye-slash" />
-                </span>
-              </button>
-            </td>
-          </tr>
-
-          <tr data-cy="todo">
-            <td className="is-vcentered">4</td>
-            <td className="is-vcentered">
-              <span className="icon" data-cy="iconCompleted">
+          {filteredTodos.map((todo) => {
+          return (
+            <tr data-cy="todo" key={todo.id}>
+            <td className="is-vcentered">{todo.id}</td>
+            <td className="is-vcentered">{todo.completed ?   <span className="icon" data-cy="iconCompleted">
                 <i className="fas fa-check" />
-              </span>
-            </td>
+              </span> : null}</td>
+
             <td className="is-vcentered is-expanded">
-              <p className="has-text-success">et porro tempora</p>
+              <p className={todo.completed ? "has-text-success": "has-text-danger"}>{todo.title}</p>
             </td>
 
             <td className="has-text-right is-vcentered">
@@ -97,126 +109,8 @@ export const TodoList: React.FC = () => {
               </button>
             </td>
           </tr>
-
-          <tr data-cy="todo">
-            <td className="is-vcentered">5</td>
-            <td className="is-vcentered"> </td>
-
-            <td className="is-vcentered is-expanded">
-              <p className="has-text-danger">
-                laboriosam mollitia et enim quasi adipisci quia provident illum
-              </p>
-            </td>
-
-            <td className="has-text-right is-vcentered">
-              <button data-cy="selectButton" className="button" type="button">
-                <span className="icon">
-                  <i className="far fa-eye" />
-                </span>
-              </button>
-            </td>
-          </tr>
-
-          <tr data-cy="todo">
-            <td className="is-vcentered">6</td>
-            <td className="is-vcentered"> </td>
-
-            <td className="is-vcentered is-expanded">
-              <p className="has-text-danger">
-                qui ullam ratione quibusdam voluptatem quia omnis
-              </p>
-            </td>
-
-            <td className="has-text-right is-vcentered">
-              <button data-cy="selectButton" className="button" type="button">
-                <span className="icon">
-                  <i className="far fa-eye" />
-                </span>
-              </button>
-            </td>
-          </tr>
-
-          <tr data-cy="todo">
-            <td className="is-vcentered">7</td>
-            <td className="is-vcentered"> </td>
-
-            <td className="is-vcentered is-expanded">
-              <p className="has-text-danger">
-                illo expedita consequatur quia in
-              </p>
-            </td>
-
-            <td className="has-text-right is-vcentered">
-              <button data-cy="selectButton" className="button" type="button">
-                <span className="icon">
-                  <i className="far fa-eye" />
-                </span>
-              </button>
-            </td>
-          </tr>
-
-          <tr data-cy="todo">
-            <td className="is-vcentered">8</td>
-
-            <td className="is-vcentered">
-              <span className="icon" data-cy="iconCompleted">
-                <i className="fas fa-check" />
-              </span>
-            </td>
-
-            <td className="is-vcentered is-expanded">
-              <p className="has-text-success">quo adipisci enim quam ut ab</p>
-            </td>
-
-            <td className="has-text-right is-vcentered">
-              <button data-cy="selectButton" className="button" type="button">
-                <span className="icon">
-                  <i className="far fa-eye" />
-                </span>
-              </button>
-            </td>
-          </tr>
-
-          <tr data-cy="todo">
-            <td className="is-vcentered">9</td>
-            <td className="is-vcentered"> </td>
-
-            <td className="is-vcentered is-expanded">
-              <p className="has-text-danger">molestiae perspiciatis ipsa</p>
-            </td>
-
-            <td className="has-text-right is-vcentered">
-              <button data-cy="selectButton" className="button" type="button">
-                <span className="icon">
-                  <i className="far fa-eye" />
-                </span>
-              </button>
-            </td>
-          </tr>
-
-          <tr data-cy="todo">
-            <td className="is-vcentered">10</td>
-
-            <td className="is-vcentered">
-              <span className="icon" data-cy="iconCompleted">
-                <i className="fas fa-check" />
-              </span>
-            </td>
-
-            <td className="is-vcentered is-expanded">
-              <p className="has-text-success">
-                illo est ratione doloremque quia maiores aut
-              </p>
-            </td>
-
-            <td className="has-text-right is-vcentered">
-              <button data-cy="selectButton" className="button" type="button">
-                <span className="icon">
-                  <i className="far fa-eye" />
-                </span>
-              </button>
-            </td>
-          </tr>
+          )})}
+          
         </tbody>
       </table>
     </>
