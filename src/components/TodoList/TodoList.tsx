@@ -11,7 +11,7 @@ export const TodoList: React.FC = () => {
   const dispatch = useAppDispatch();
   const { actions: todoActions } = todosSlice;
   const { actions: currentTodoActions } = currentTodoSlice;
-  const todoList = useAppSelector(state => state.todos);
+  const { todos } = useAppSelector(state => state.todos);
   const { query, status } = useAppSelector(state => state.filter);
   const currentTodo = useAppSelector(state => state.currentTodo);
 
@@ -22,16 +22,21 @@ export const TodoList: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!todos) {
+      dispatch(todoActions.setLoading(true));
+    }
+
     getTodos()
       .then(fetchedTodos => {
         dispatch(todoActions.setTodos(fetchedTodos));
+        dispatch(todoActions.setLoading(false));
       })
       .catch(error => {
         console.error('Failed to fetch todos:', error);
       });
-  }, [dispatch]);
+  }, []);
 
-  const filteredTodos = todoList.filter(todo => {
+  const filteredTodos = todos.filter(todo => {
     const matchesQuery = todo.title.toLowerCase().includes(query.toLowerCase());
     const matchesStatus =
       status === 'all' ||

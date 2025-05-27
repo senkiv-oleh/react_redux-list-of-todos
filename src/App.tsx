@@ -5,7 +5,7 @@ import { useAppSelector } from './app/hooks';
 
 export const App = () => {
   const currentTodo = useAppSelector(state => state.currentTodo);
-  const todoList = useAppSelector(state => state.todos);
+  const { isLoading } = useAppSelector(state => state.todos);
 
   return (
     <>
@@ -18,10 +18,7 @@ export const App = () => {
               <TodoFilter />
             </div>
 
-            <div className="block">
-              {todoList ? '' : <Loader />}
-              <TodoList />
-            </div>
+            <div className="block">{isLoading ? <Loader /> : <TodoList />}</div>
           </div>
         </div>
       </div>
