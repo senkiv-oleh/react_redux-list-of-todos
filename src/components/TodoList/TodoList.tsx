@@ -1,42 +1,22 @@
 /* eslint-disable */
-import React, { useEffect } from 'react';
-import { todosSlice } from '../../features/todos';
+import React from 'react';
 import { currentTodoSlice } from '../../features/currentTodo';
 import { Todo } from '../../types/Todo';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { getTodos, } from '../../api';
-import { currentUserSlice } from '../../features/currentUser';
 
 export const TodoList: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { actions: todoActions } = todosSlice;
   const { actions: currentTodoActions } = currentTodoSlice;
-  const { todos } = useAppSelector(state => state.todos);
-  const { query, status } = useAppSelector(state => state.filter);
-  const currentTodo = useAppSelector(state => state.currentTodo);
 
+  const todosList = useAppSelector(state => state.todos);
+  const currentTodo = useAppSelector(state => state.currentTodo);
+  const { query, status } = useAppSelector(state => state.filter);
 
   const selectTodo = (todo: Todo) => {
     dispatch(currentTodoActions.setCurrentTodo(todo));
-
   };
 
-  useEffect(() => {
-    if (!todos) {
-      dispatch(todoActions.setLoading(true));
-    }
-
-    getTodos()
-      .then(fetchedTodos => {
-        dispatch(todoActions.setTodos(fetchedTodos));
-        dispatch(todoActions.setLoading(false));
-      })
-      .catch(error => {
-        console.error('Failed to fetch todos:', error);
-      });
-  }, []);
-
-  const filteredTodos = todos.filter(todo => {
+  const filteredTodos = todosList.filter(todo => {
     const matchesQuery = todo.title.toLowerCase().includes(query.toLowerCase());
     const matchesStatus =
       status === 'all' ||
