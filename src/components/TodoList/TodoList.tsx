@@ -4,7 +4,8 @@ import { todosSlice } from '../../features/todos';
 import { currentTodoSlice } from '../../features/currentTodo';
 import { Todo } from '../../types/Todo';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { getTodos } from '../../api';
+import { getTodos, } from '../../api';
+import { currentUserSlice } from '../../features/currentUser';
 
 export const TodoList: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -12,9 +13,12 @@ export const TodoList: React.FC = () => {
   const { actions: currentTodoActions } = currentTodoSlice;
   const todoList = useAppSelector(state => state.todos);
   const { query, status } = useAppSelector(state => state.filter);
+  const currentTodo = useAppSelector(state => state.currentTodo);
+
 
   const selectTodo = (todo: Todo) => {
     dispatch(currentTodoActions.setCurrentTodo(todo));
+
   };
 
   useEffect(() => {
@@ -84,7 +88,11 @@ export const TodoList: React.FC = () => {
               <td className="has-text-right is-vcentered">
                 <button data-cy="selectButton" className="button" type="button" onClick={() => selectTodo(todo)}>
                   <span className="icon">
-                    <i className="far fa-eye" />
+                    <i className={`far ${
+                      currentTodo?.id === todo.id
+                      ? 'fa-eye-slash' 
+                      : 'fa-eye'
+                    }`} />
                   </span>
                 </button>
               </td>
